@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>Anna Tkach, Lab 2, Exercise 2</title>
+<style>
+    body {
+        background-color: #DDDDDD;
+        -webkit-user-select: none; /* turn off text selection  / Webkit */
+        -moz-user-select: none;    /* Firefox */
+        -ms-user-select: none;     /* IE 10  */
+        -o-user-select: none;      /* Opera */
+        user-select: none;
+    }
+    canvas {
+        background-color: white;
+        display: block;
+    }
+    #canvasholder {
+        border:2px solid black;
+        float: left; /* This makes the border exactly fit the canvas. */
+    }
+</style>
+<script>
+"use strict";  
+
+var canvas;    
+var graphics;  
+
+function randomColorString() {
+    var r = Math.floor(256*Math.random());
+    var g = Math.floor(256*Math.random());
+    var b = Math.floor(256*Math.random());
+    return "rgb(" + r + "," + g + "," + b + ")";
+}
+
+function installMouseHandler() {
+
+    var dragging = false;  
+    var startX, startY;    
+    var prevX, prevY;      
+    var colorChoice;  
+    var drawMode = "squares"; 
+
+    function doMouseDown(evt) {
+        if (dragging) return;
+        if (evt.button != 0) return; 
+
+        var x, y;
+        var r = canvas.getBoundingClientRect();
+        x = Math.round(evt.clientX - r.left);
+        y = Math.round(evt.clientY - r.top);
+
+        dragging = true;
+        startX = prevX = x;
+        startY = prevY = y;
+        document.addEventListener("mousemove", doMouseMove, false);
+        document.addEventListener("mouseup", doMouseUp, false);
+
+        colorChoice = Number(document.getElementById("colorChoice").value);
+        drawMode = document.getElementById("shapeChoice").value; 
+    }
+
+    function doMouseMove(evt) {
+        if (!dragging) return;
+
+        var x, y;
+        var r = canvas.getBoundingClientRect();
+        x = Math.round(evt.clientX - r.left);
+        y = Math.round(evt.clientY - r.top);
+
+        if (Math.abs(x - prevX) + Math.abs(y - prevY) < 3) return;  
+
+        let color = "black";
+        if (colorChoice == 0) color = randomColorString();
+        else if (colorChoice == 1) color = "red";
+        else if (colorChoice == 2) color = "green";
+        else if (colorChoice == 3) color = "blue";
+        else if (colorChoice == 4) color = "purple"; 
+
+        if (drawMode === "squares") {
+            graphics.fillStyle = color;
+            graphics.fillRect(x - 20, y - 20, 40, 40);
+            graphics.strokeRect(x - 20, y - 20, 40, 40);
+        } else if (drawMode === "polygons") {
+            drawPolygon(graphics, x, y, 5, 20, color);
+        } else if (drawMode === "gradientPolygons") {
+            let gradient = createGradient(graphics, x, y, 30);
+            drawPolygon(graphics, x, y, 5, 20, gradient);
+        }
+
+        prevX = x;
+        prevY = y;
+    }
+
+    function doMouseUp(evt) {
+        if (!dragging) return;
+        dragging = false;
+        document.removeEventListener("mousemove", doMouseMove, false);
+        document.removeEventListener("mouseup", doMouseUp, false);
+    }
+
+    canvas.addEventListener("mousedown", doMouseDown, false);
+}
+
+function drawPolygon(ctx, centerX, centerY, sides, radius, fillStyle) {
+    ctx.beginPath();
+    for (let i = 0; i < sides; i++) {
+        let angle = (Math.PI / 180) * (i * (360 / sides) - 90);
+        let x = centerX + radius * Math.cos(angle);
+        let y = centerY + radius * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = fillStyle;
+    ctx.fill();
+    ctx.stroke();
+}
+
+function createGradient(ctx, x, y, size) {
+    let gradient = ctx.createLinearGradient(x - size, y - size, x + size, y + size);
+    gradient.addColorStop(0, "blue");
+    gradient.addColorStop(1, "pink");
+    return gradient;
+}
+
+function clearCanvas() {
+    graphics.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function init() {
+    try {
+        canvas = document.getElementById("canvas");
+        graphics = canvas.getContext("2d");
+    } catch (e) {
+        document.getElementById("canvasholder").innerHTML =
+            "<p>Canvas graphics is not supported.<br>" +
+            "An error occurred while initializing graphics.</p>";
+        return;
+    }
+    installMouseHandler();
+    document.getElementById("clearButton").addEventListener("click", clearCanvas);
+}
+  
+</script>
+<link href="data:text/css,%3Ais(%5Bid*%3D'google_ads_iframe'%5D%2C%5Bid*%3D'taboola-'%5D%2C.taboolaHeight%2C.taboola-placeholder%2C%23credential_picker_container%2C%23credentials-picker-container%2C%23credential_picker_iframe%2C%5Bid*%3D'google-one-tap-iframe'%5D%2C%23google-one-tap-popup-container%2C.google-one-tap-modal-div%2C%23amp_floatingAdDiv%2C%23ez-content-blocker-container)%20%7Bdisplay%3Anone!important%3Bmin-height%3A0!important%3Bheight%3A0!important%3B%7D" rel="stylesheet" type="text/css"></head>
+<body onload="init()"> <!-- the onload attribute here is what calls the init() function -->
+
+<h2>Lab 2, Exercise 2: Mousing</h2>
+
+<noscript>
+    <!-- This message will be shown in the page if JavaScript is not available. -->
+<p>JavaScript is required to use this page.</p>
+</noscript>
+
+<p><b>Color:</b>
+    <select id="colorChoice">
+        <option value="0" selected="selected">Random</option>
+        <option value="1">Red</option>
+        <option value="2">Green</option>
+        <option value="3">Blue</option>
+        <option value="4">Purple</option>
+    </select>
+</p>
+<p><b>Shape:</b>
+    <select id="shapeChoice">
+        <option value="squares" selected="selected">Squares</option>
+        <option value="polygons">Polygons</option>
+        <option value="gradientPolygons">Gradient Polygons</option>
+    </select>
+</p>
+<button id="clearButton">Clear it all</button>
+
+<div id="canvasholder">
+<canvas id="canvas" width="800" height="600">
+    <!-- This message is shown on the page if the browser doesn't support the canvas element. -->
+Canvas not supported.
+</canvas>
+</div>
+
+
+<script>mendeleyWebImporter = {
+  downloadPdfs(e,t) { return this._call('downloadPdfs', [e,t]); },
+  open() { return this._call('open', []); },
+  setLoginToken(e) { return this._call('setLoginToken', [e]); },
+  _call(methodName, methodArgs) {
+    const id = Math.random();
+    window.postMessage({ id, token: '0.9739079369679529', methodName, methodArgs }, 'https://e-uczelnia.ath.bielsko.pl');
+    return new Promise(resolve => {
+      const listener = window.addEventListener('message', event => {
+        const data = event.data;
+        if (typeof data !== 'object' || !('result' in data) || data.id !== id) return;
+        window.removeEventListener('message', listener);
+        resolve(data.result);
+      });
+    });
+  }
+};</script></body></html>

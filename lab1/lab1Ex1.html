@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wariant 10</title>
+    <canvas id="theCanvas" width="640" height="480"></canvas>
+</head>
+
+
+<script>
+        var canvas; // DOM object corresponding to the canvas
+        var graphics; // 2D graphics context for drawing on the canvas
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        graphics.fillText("Anna Tkach, Lab1 Ex1 wariant 10", 10, 20);
+        //rysujemy figurę
+        function drawPentagon(graphics,centerX,centerY,radius,color) {
+        graphics.beginPath();
+        for(var i =0;i<5;i++)
+        {
+            var angle = (Math.PI/180)*(i*72-90);
+            var x = centerX+radius*Math.cos(angle);
+            var y = centerY+radius*Math.sin(angle);
+            if(i === 0){
+                graphics.moveTo(x,y);
+            }else{
+                graphics.lineTo(x,y);
+            }
+        }
+        graphics.closePath();
+        graphics.fillStyle = color;
+        graphics.fill();
+        graphics.stroke();
+        }
+
+
+        drawPentagon(graphics,150,150,50,"blue");
+
+
+      //rysujemy oczy
+      function drawEyes(graphics,x,y,radius){
+        graphics.beginPath();
+        graphics.arc(x,y,radius,0,2*Math.PI);
+        graphics.fillStyle = "white";
+        graphics.fill();
+        graphics.stroke();
+
+
+        graphics.beginPath();
+        graphics.arc(x,y,radius/2,0,2*Math.PI);
+        graphics.fillStyle = "black";
+        graphics.fill();
+      }
+      //rysujemy usmiech
+      function drawSmile(graphics,x,y,width,height)
+      {
+        graphics.beginPath();
+        graphics.arc(x,y,width,0,Math.PI,false);
+        graphics.stroke();
+      }
+      drawEyes(graphics,135,140,5);
+      drawEyes(graphics,165,140,5);
+      drawSmile(graphics,150,160,10,5);
+
+
+
+
+</script>
+       
+<body >
+
+
+</body>
+           
+</html>
+
